@@ -39,7 +39,7 @@ document.onclick = function(e) {
 };
 
 var map = new Image();
-map.src = './maps/The Village.png';
+map.src = './client/maps/The Village.png';
 
 setInterval(function() {
     ctx.save();

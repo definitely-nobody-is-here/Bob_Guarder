@@ -201,7 +201,7 @@ Monster = function(x, y, type) {
             break;
     }
     self.lastAttack = 0;
-    self.animationImage.src = './img/' + type + '.png';
+    self.animationImage.src = './client/img/' + type + '.png';
     self.update = function() {
         ctx.drawImage(self.animationImage, self.animationFrame*self.width, 0, self.width, self.height, self.x-self.width*2, self.y-self.height*2, self.width*4, self.height*4);
         self.path();
