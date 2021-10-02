@@ -1,0 +1,30 @@
+{
+  "name": "bob_guarder",
+  "version": "0.0.0",
+  "description": "GO PLAY MOUNTAIN GUARDER",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/definitely-nobody-is-here/Bob_Guarder.git"
+  },
+  "keywords": [
+    "random",
+    "meadowguarder",
+    "mountainguarder",
+    "rpg",
+    "dumb"
+  ],
+  "author": "Radioactive64",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/definitely-nobody-is-here/Bob_Guarder/issues"
+  },
+  "homepage": "https://github.com/definitely-nobody-is-here/Bob_Guarder#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.2.0"
+  }
+}
