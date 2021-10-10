@@ -150,6 +150,17 @@ Player = function() {
         ctx.fillStyle = '#000000';
         ctx.fillRect(self.x-16, self.y-16, 32, 32);
         self.collide();
+        if (self.hp < 0) {
+            self.hp = 0;
+            self.dead = true;
+            self.keys = {
+                up: false,
+                down: false,
+                left: false,
+                right: false,
+            };
+            document.getElementById('deathScreen').style.display = 'block';
+        }
     };
 
     return self;
@@ -172,7 +183,8 @@ Monster = function(x, y, type) {
             allowDiagonal: true,
             dontCrossCorners: true
         }),
-        path: []
+        path: [],
+        range: 16
     };
     self.type = type;
     switch (self.type) {
@@ -196,18 +208,23 @@ Monster = function(x, y, type) {
             self.height = 20;
             self.moveSpeed = 10;
             break;
+        case 'waterbottle':
+            self.width = 30;
+            self.height = 32;
+            self.moveSpeed = 1;
+            break;
         default:
             console.error('invalid mosnter type!')
             break;
     }
     self.lastAttack = 0;
-    self.animationImage.src = './client/img/' + type + '.png';
+    self.animationImage.src = './img/' + type + '.png';
     self.update = function() {
         ctx.drawImage(self.animationImage, self.animationFrame*self.width, 0, self.width, self.height, self.x-self.width*2, self.y-self.height*2, self.width*4, self.height*4);
         self.path();
         self.collide();
         self.attack();
-        if (self.hp < 0) delete Monster.list[self.id];
+        if (self.hp < 1) delete Monster.list[self.id];
     };
     self.collide = function() {
         for (var i = 0; i < self.moveSpeed; i++) {
@@ -251,30 +268,36 @@ Monster = function(x, y, type) {
         self.lastAttack++;
         switch (self.type) {
             case 'bluebird':
-                if (self.lastAttack > 60) {
+                if (self.lastAttack >= 60) {
                     self.lastAttack = 0;
-                    new Projectile(self.x, self.y, false, player.x, player.y);
+                    new Projectile(self.x, self.y, 'ninjastar', false, player.x, player.y);
                 }
                 break;
             case 'greenbird':
-                if (self.lastAttack > 45) {
+                if (self.lastAttack >= 45) {
                     self.lastAttack = 0;
-                    new Projectile(self.x, self.y, false, player.x, player.y);
+                    new Projectile(self.x, self.y, 'ninjastar', false, player.x+Math.random()*20-10, player.y+Math.random()*20-10);
                 }
                 break;
             case 'ball':
-                if (self.lastAttack > 2) {
+                if (self.lastAttack >= 1) {
                     self.lastAttack = 0;
-                    new Projectile(self.x, self.y, false, self.x+Math.random()*10-5, self.y+Math.random()*10-5);
+                    new Projectile(self.x, self.y, 'laser', false, self.x+Math.random()*10-5, self.y+Math.random()*10-5);
                 }
                 break;
             case 'ballrammer':
-                if (player.x < self.x) self.xspeed -= 1;
-                if (player.x > self.x) self.xspeed += 1;
-                if (player.y < self.y) self.yspeed -= 1;
-                if (player.y > self.y) self.yspeed += 1;
+                if (player.x < self.x) self.xspeed -= 10;
+                if (player.x > self.x) self.xspeed += 10;
+                if (player.y < self.y) self.yspeed -= 10;
+                if (player.y > self.y) self.yspeed += 10;
                 if (self.collideWith(player)) {
                     player.hp -= 10;
+                }
+                break;
+            case 'waterbottle':
+                if (self.lastAttack >= 2) {
+                    self.lastAttack = 0;
+                    new Projectile(self.x, self.y, 'smallwaterbottle', false, player.x+Math.random()*200-100, player.y+Math.random()*200-100);
                 }
                 break;
             default:
@@ -283,14 +306,14 @@ Monster = function(x, y, type) {
     };
     self.path = function() {
         try {
-            if (self.getDistance(player) < 16*32) {
+            if (self.getDistance(player) < self.ai.range*64) {
                 var offsetx = self.gridx-9;
                 var offsety = self.gridy-9;
                 var x1 = 9;
                 var y1 = 9;
                 var x2 = player.gridx-offsetx;
                 var y2 = player.gridy-offsety;
-                var size = 17;
+                var size = self.ai.range*2+1;
                 self.ai.grid = new Grid(size, size);
                 for (var y = 0; y < size; y++) {
                     for (var x = 0; x < size; x++) {
@@ -327,7 +350,7 @@ Monster.update = function() {
 };
 Monster.list = [];
 
-Projectile = function(x, y, parentisPlayer, angleORMouseX, mouseY) {
+Projectile = function(x, y, type, parentisPlayer, angleORMouseX, mouseY) {
     var self = new Entity();
     self.x = x;
     self.y = y;
@@ -337,35 +360,104 @@ Projectile = function(x, y, parentisPlayer, angleORMouseX, mouseY) {
     }
     self.xspeed = Math.cos(self.angle) * 20;
     self.yspeed = Math.sin(self.angle) * 20;
+    self.type = type;
+    self.travelTime = 0;
+    switch (self.type) {
+        case 'arrow':
+            self.width = 80;
+            self.height = 10;
+            self.moveSpeed = 10;
+            break;
+        case 'ninjastar':
+            self.width = 22;
+            self.height = 22;
+            self.moveSpeed = 30;
+            break;
+        case 'thing':
+            self.width = 20;
+            self.height = 20;
+            self.moveSpeed = 20;
+            break;
+        case 'laser':
+            self.width = 30;
+            self.height = 6;
+            self.moveSpeed = 40;
+            break;
+        case 'smallwaterbottle':
+            self.width = 40;
+            self.height = 40;
+            self.moveSpeed = 40;
+            break;
+            default:
+            console.error('invalid projetile type!')
+            break;
+    }
+    self.image = new Image();
+    self.image.src = './img/' + type + '.png';
 
     self.update = function() {
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(self.x-5, self.y-5, 10, 10);
+        ctx.save();
+        ctx.translate(self.x, self.y);
+        ctx.rotate(self.angle);
+        ctx.drawImage(self.image, -self.width/2, -self.height/2, self.width, self.height);
+        ctx.restore();
         self.collide();
         if (parentisPlayer) {
             for (var i in Monster.list) {
-                self.collideWith(Monster.list[i]);
+                if (self.collideWith(Monster.list[i])) {
+                    if (Monster.list[i].hp) Monster.list[i].hp -= 10;
+                }
             }
         } else {
-            self.collideWith(player);
+            if (self.collideWith(player)) {
+                player.hp -= 10;
+            }
+        }
+        self.travelTime++;
+        if (self.travelTime >= 3600) {
+            delete (Projectile.list[self.id]);
         }
     };
     self.collideWith = function(entity) {
-        var bound1left = self.x-(self.width/2);
-        var bound1right = self.x+(self.width/2);
-        var bound1top = self.y-(self.height/2);
-        var bound1bottom = self.y+(self.height/2);
-        var bound2left = entity.x-(entity.width/2);
-        var bound2right = entity.x+(entity.width/2);
-        var bound2top = entity.y-(entity.height/2);
-        var bound2bottom = entity.y+(entity.height/2);
-        if (entity.map == self.map && bound1left < bound2right && bound1right > bound2left && bound1top < bound2bottom && bound1bottom > bound2top) {
-            if (entity.hp) entity.hp -= 10;
+        var vertices = [
+            {x: ((self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
+            {x: ((self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
+            {x: ((-self.width/2)*Math.cos(self.angle))-((-self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((-self.height/2)*Math.cos(self.angle))+self.y},
+            {x: ((-self.width/2)*Math.cos(self.angle))-((self.height/2)*Math.sin(self.angle))+self.x, y: ((-self.width/2)*Math.sin(self.angle))+((self.height/2)*Math.cos(self.angle))+self.y},
+            {x: self.x, y: self.y}
+        ];
+        var vertices2 = [
+            {x: entity.x+entity.width/2, y: entity.y+entity.height/2},
+            {x: entity.x+entity.width/2, y: entity.y-entity.height/2},
+            {x: entity.x-entity.width/2, y: entity.y-entity.height/2},
+            {x: entity.x-entity.width/2, y: entity.y+entity.height/2}
+        ];
+        function getSlope(pt1, pt2) {
+            return (pt2.y - pt1.y) / (pt2.x - pt1.x);
+        };
+        for (var i = 0; i < 4; i++) {
+            if (vertices2[i].y-vertices[0].y < (getSlope(vertices[0],vertices[1])*(vertices2[i].x-vertices[0].x))) {
+                if (vertices2[i].y-vertices[1].y > (getSlope(vertices[1],vertices[2])*(vertices2[i].x-vertices[1].x))) {
+                    if (vertices2[i].y-vertices[2].y > (getSlope(vertices[2],vertices[3])*(vertices2[i].x-vertices[2].x))) {
+                        if (vertices2[i].y-vertices[3].y < (getSlope(vertices[3],vertices[0])*(vertices2[i].x-vertices[3].x))) {
+                            delete (Projectile.list[self.id]);
+                            return true;
+                        }
+                    }
+                }
+            }
+            if (vertices[i].x > vertices2[2].x && vertices[i].x < vertices2[0].x && vertices[i].y > vertices2[2].y && vertices[i].y < vertices2[0].y) {
+                delete (Projectile.list[self.id]);
+                return true;
+            }
+        }
+        if (vertices[4].x > vertices2[2].x && vertices[4].x < vertices2[0].x && vertices[4].y > vertices2[2].y && vertices[4].y < vertices2[0].y) {
             delete (Projectile.list[self.id]);
             return true;
         }
+
         return false;
-    }
+    };
 
     Projectile.list[self.id] = self;
     return self;

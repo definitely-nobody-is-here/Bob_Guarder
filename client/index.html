@@ -3,13 +3,17 @@
     <head>
         <title>Bob Guarder</title>
         <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
-        <script src="./client/pathfind.js" defer></script>
-        <script src="./client/maps.js" defer></script>
-        <script src="./client/entity.js" defer></script>
-        <script src="./client/game.js" defer></script>
-        <link rel="icon" href="./client/favicon.ico" type="image/x-icon">
+        <script src="./pathfind.js" defer></script>
+        <script src="./maps.js" defer></script>
+        <script src="./entity.js" defer></script>
+        <script src="./game.js" defer></script>
     </head>
     <body>
         <canvas id="ctx" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+        <div id="deathScreen" style="display: none;">
+            <div style="position: absolute; top:0px; left: 0px; width: 100%; height: 100%; background-color: red; opacity: 0.3;"></div>
+            <div id="deathcountdown" style="position: absolute; top: 200px; left: 50%; text-align: center; transform: translate(-50%, -50%); font-size: 30px;">5</div>
+            <button id="respawnbutton" style="position: absolute; top:250px; left: 50%; transform: translate(-50%, -50%); font-size: 24px; background-color: #55555555; border-width: 4px;">Respawn</button>
+        </div>
     </body>
 </html>
