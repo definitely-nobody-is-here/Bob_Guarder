@@ -13,7 +13,7 @@ Entity = function() {
         gridy: 0,
         width: 16,
         height: 16,
-        map: 'The Village',
+        map: 'The River',
         moveSpeed: 20,
         animationImage: new Image(),
         animationFrame: 0
@@ -140,6 +140,7 @@ Player = function() {
     };
     self.moveSpeed = 5;
     self.hp = 100;
+    self.animationImage.src = './img/player.png';
     self.update = function() {
         self.xspeed = 0;
         self.yspeed = 0;
@@ -148,7 +149,7 @@ Player = function() {
         if (self.keys.left) self.xspeed = -self.moveSpeed;
         if (self.keys.right) self.xspeed = self.moveSpeed;
         ctx.fillStyle = '#000000';
-        ctx.fillRect(self.x-16, self.y-16, 32, 32);
+        ctx.drawImage(self.animationImage, (self.animationFrame % 6)*self.width, (~~(self.animationFrame / 6))*self.height, self.width/4, self.height/2, self.x-self.width/2, self.y-self.height*3/2, self.width, self.height*2);
         self.collide();
         if (self.hp < 0) {
             self.hp = 0;
@@ -220,11 +221,19 @@ Monster = function(x, y, type) {
     self.lastAttack = 0;
     self.animationImage.src = './img/' + type + '.png';
     self.update = function() {
-        ctx.drawImage(self.animationImage, self.animationFrame*self.width, 0, self.width, self.height, self.x-self.width*2, self.y-self.height*2, self.width*4, self.height*4);
+        ctx.drawImage(self.animationImage, (self.animationFrame % 6)*self.width, (~~(self.animationFrame / 6))*self.height, self.width, self.height, self.x-self.width*2, self.y-self.height*2, self.width*4, self.height*4);
         self.path();
         self.collide();
         self.attack();
-        if (self.hp < 1) delete Monster.list[self.id];
+        if (self.hp < 1) {
+            var random = Math.random();
+            if (random < 0.5) {
+                new Item('bow');
+            } else if (random < 1) {
+                new Item('sword');
+            }
+            delete Monster.list[self.id];
+        }
     };
     self.collide = function() {
         for (var i = 0; i < self.moveSpeed; i++) {
@@ -367,26 +376,37 @@ Projectile = function(x, y, type, parentisPlayer, angleORMouseX, mouseY) {
             self.width = 80;
             self.height = 10;
             self.moveSpeed = 10;
+            self.damage = 10;
+            break;
+        case 'meleeDamage':
+            self.width = 80;
+            self.height = 80;
+            self.moveSpeed = 0;
+            self.damage = 10;
             break;
         case 'ninjastar':
             self.width = 22;
             self.height = 22;
             self.moveSpeed = 30;
+            self.damage = 10;
             break;
         case 'thing':
             self.width = 20;
             self.height = 20;
             self.moveSpeed = 20;
+            self.damage = 5;
             break;
         case 'laser':
             self.width = 30;
             self.height = 6;
             self.moveSpeed = 40;
+            self.damage = 5;
             break;
         case 'smallwaterbottle':
             self.width = 40;
             self.height = 40;
             self.moveSpeed = 40;
+            self.damage = 2;
             break;
             default:
             console.error('invalid projetile type!')
@@ -405,12 +425,12 @@ Projectile = function(x, y, type, parentisPlayer, angleORMouseX, mouseY) {
         if (parentisPlayer) {
             for (var i in Monster.list) {
                 if (self.collideWith(Monster.list[i])) {
-                    if (Monster.list[i].hp) Monster.list[i].hp -= 10;
+                    if (Monster.list[i].hp) Monster.list[i].hp -= self.damage;
                 }
             }
         } else {
             if (self.collideWith(player)) {
-                player.hp -= 10;
+                player.hp -= self.damage;
             }
         }
         self.travelTime++;
