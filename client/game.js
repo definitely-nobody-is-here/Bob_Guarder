@@ -70,7 +70,7 @@ Inventory.equipItem = function(slot) {
     }
     var item = Inventory.items[slot];
     item.slotId = item.equipType;
-    item.slot.innerHTML = '<img src="./img/' + item.id + '.png">' + item.name + '<button onclick="Inventory.unequipItem(\'' + item.slotId + '\');">Unequip</button>';
+    item.slot.innerHTML = '<img src="./client/img/' + item.id + '.png">' + item.name + '<button onclick="Inventory.unequipItem(\'' + item.slotId + '\');">Unequip</button>';
     Inventory.equips[item.slotId] = item;
     Inventory.items[slot] = null;
     Inventory.refresh();
@@ -85,7 +85,7 @@ Inventory.unequipItem = function(slot) {
     }
     var item = Inventory.equips[slot];
     item.slotId = slotId;
-    item.slot.innerHTML = '<img src="./img/' + item.id + '.png">' + item.name + '<button onclick="Inventory.equipItem(' + item.slotId + ');">Equip</button>';
+    item.slot.innerHTML = '<img src="./client/img/' + item.id + '.png">' + item.name + '<button onclick="Inventory.equipItem(' + item.slotId + ');">Equip</button>';
     Inventory.items[item.slotId] = item;
     Inventory.equips[slot] = null;
     Inventory.refresh();
