@@ -140,7 +140,7 @@ Player = function() {
     };
     self.moveSpeed = 5;
     self.hp = 100;
-    self.animationImage.src = './img/player.png';
+    self.animationImage.src = './client/img/player.png';
     self.update = function() {
         self.xspeed = 0;
         self.yspeed = 0;
@@ -219,7 +219,7 @@ Monster = function(x, y, type) {
             break;
     }
     self.lastAttack = 0;
-    self.animationImage.src = './img/' + type + '.png';
+    self.animationImage.src = './client/img/' + type + '.png';
     self.update = function() {
         ctx.drawImage(self.animationImage, (self.animationFrame % 6)*self.width, (~~(self.animationFrame / 6))*self.height, self.width, self.height, self.x-self.width*2, self.y-self.height*2, self.width*4, self.height*4);
         self.path();
@@ -413,7 +413,7 @@ Projectile = function(x, y, type, parentisPlayer, angleORMouseX, mouseY) {
             break;
     }
     self.image = new Image();
-    self.image.src = './img/' + type + '.png';
+    self.image.src = './client/img/' + type + '.png';
 
     self.update = function() {
         ctx.save();

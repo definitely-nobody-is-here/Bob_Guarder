@@ -130,7 +130,7 @@ Item = function(id) {
     }
 
     self.slot = document.createElement('div');
-    self.slot.innerHTML = '<img src="./img/' + self.id + '.png">' + self.name + '<button onclick="Inventory.equipItem(' + self.slotId + ');">Equip</button>';
+    self.slot.innerHTML = '<img src="./client/img/' + self.id + '.png">' + self.name + '<button onclick="Inventory.equipItem(' + self.slotId + ');">Equip</button>';
 
     Inventory.items[self.slotId] = self;
     Inventory.refresh();
@@ -144,8 +144,8 @@ function loadMap(name) {
         upper: new Image,
         lower: new Image
     };
-    MAPS[name].upper.src = './maps/' + name + '_upper.png';
-    MAPS[name].lower.src = './maps/' + name + '_lower.png';
+    MAPS[name].upper.src = './client/maps/' + name + '_upper.png';
+    MAPS[name].lower.src = './client/maps/' + name + '_lower.png';
 };
 loadMap('The Village');
 loadMap('The River');
